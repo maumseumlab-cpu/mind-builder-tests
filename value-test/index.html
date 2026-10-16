@@ -1,0 +1,739 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light">
+<title>빵집에서 고르는 나의 간식 (시험판)</title>
+<style>
+  :root {
+    --bg: #fbf5ec;
+    --card: #ffffff;
+    --ink: #3b2a1e;
+    --soft: #8a7564;
+    --faint: #b9a896;
+    --line: #e6d7c4;
+    --accent: #c9773b;
+    --accent-ink: #ffffff;
+    --pick: #fff1e2;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", sans-serif;
+    font-size: 19px;
+    line-height: 1.6;
+    word-break: keep-all;
+    overflow-wrap: anywhere;
+    overflow-x: hidden;
+  }
+  #app {
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 20px 16px 48px;
+    min-height: 100vh;
+    min-height: 100dvh;
+  }
+  h1 { font-size: 28px; line-height: 1.35; margin: 8px 0 4px; }
+  h2 { font-size: 23px; line-height: 1.45; margin: 4px 0 20px; }
+  p { margin: 0 0 14px; }
+  .badge {
+    display: inline-block; font-size: 14px; padding: 2px 10px; border-radius: 999px;
+    background: var(--line); color: var(--ink); vertical-align: middle;
+  }
+  .hero { font-size: 44px; text-align: center; margin: 20px 0 8px; }
+  .small { font-size: 16px; color: var(--soft); }
+  .tiny { font-size: 14px; color: var(--soft); line-height: 1.5; }
+  label.field { display: block; font-weight: 600; margin: 22px 0 6px; }
+  label.field span { font-weight: 400; color: var(--soft); font-size: 15px; }
+  input[type=text], textarea {
+    width: 100%; font: inherit; font-size: 18px; color: var(--ink);
+    padding: 12px 14px; border: 2px solid var(--line); border-radius: 12px; background: var(--card);
+  }
+  textarea { min-height: 96px; resize: vertical; }
+  input[type=text]:focus, textarea:focus { outline: none; border-color: var(--accent); }
+  button { font: inherit; color: inherit; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+  .primary {
+    display: block; width: 100%; margin-top: 20px; padding: 15px 16px;
+    border: 0; border-radius: 14px; background: var(--accent); color: var(--accent-ink);
+    font-size: 20px; font-weight: 700;
+  }
+  .primary:disabled { opacity: .35; }
+  .ghost {
+    padding: 13px 16px; border: 2px solid var(--line); border-radius: 14px; background: var(--card);
+    font-size: 18px;
+  }
+
+  /* 진행 표시 */
+  .bags { font-size: 20px; letter-spacing: 1px; min-height: 32px; margin-bottom: 14px; }
+
+  /* 보기 공통 */
+  .opts { display: flex; flex-direction: column; gap: 12px; }
+  .opt {
+    width: 100%; text-align: left; padding: 15px 16px; min-height: 58px;
+    border: 2px solid var(--line); border-radius: 14px; background: var(--card); font-size: 19px; line-height: 1.5;
+  }
+  .opt.on { border-color: var(--accent); background: var(--pick); box-shadow: 0 0 0 2px var(--accent) inset; }
+
+  /* 책 표지 카드 */
+  .opts.book, .opts.frame { flex-direction: row; flex-wrap: wrap; justify-content: center; }
+  .opts.book .opt, .opts.frame .opt { width: calc(50% - 6px); }
+  .opts.book .opt {
+    min-height: 190px; display: flex; flex-direction: column; justify-content: center; text-align: center;
+    padding: 18px 14px 18px 22px; border-radius: 4px 12px 12px 4px; font-weight: 700; font-size: 18px;
+    background: linear-gradient(90deg, rgba(0,0,0,.10) 0 8px, transparent 8px), var(--cv, #f3e3cf);
+    border-color: transparent;
+  }
+  .opts.book .opt.on { border-color: var(--accent); }
+  .opts.book .opt .by { display: block; font-weight: 400; font-size: 13px; color: var(--soft); margin-top: 12px; }
+
+  /* 액자 카드 */
+  .opts.frame .opt {
+    text-align: center; padding: 12px 12px 14px; border-radius: 6px; border: 2px solid var(--line);
+    box-shadow: 0 2px 6px rgba(60,40,20,.08);
+  }
+  .opts.frame .opt .pic {
+    display: flex; align-items: center; justify-content: center; aspect-ratio: 1 / 1;
+    font-size: 46px; border-radius: 3px; background: var(--cv, #f3e3cf); margin-bottom: 10px;
+  }
+  .opts.frame .opt .cap { display: block; font-size: 16px; line-height: 1.45; }
+  .opts.frame .opt.on { border-color: var(--accent); }
+
+  /* 썸네일 카드 */
+  .opts.thumb .opt { padding: 10px 10px 14px; }
+  .opts.thumb .opt .tb {
+    position: relative; display: flex; align-items: center; justify-content: center;
+    aspect-ratio: 16 / 7; border-radius: 10px; background: var(--cv, #f3e3cf); margin-bottom: 10px;
+  }
+  .opts.thumb .opt .tb::after {
+    content: ""; width: 0; height: 0; border-left: 20px solid rgba(255,255,255,.95);
+    border-top: 12px solid transparent; border-bottom: 12px solid transparent; margin-left: 6px;
+  }
+  .opts.thumb .opt .tb .dur {
+    position: absolute; right: 8px; bottom: 6px; font-size: 12px; color: #fff;
+    background: rgba(0,0,0,.55); padding: 0 6px; border-radius: 4px;
+  }
+  .opts.thumb .opt .tt { display: block; font-weight: 600; padding: 0 4px; }
+
+  .hard { display: flex; align-items: center; gap: 8px; margin: 18px 0 0; font-size: 15px; color: var(--soft); }
+  .hard input { width: 20px; height: 20px; accent-color: var(--accent); flex: none; }
+  .nav { display: flex; gap: 10px; margin-top: 22px; }
+  .nav .ghost { flex: 0 0 auto; }
+  .nav .primary { margin-top: 0; flex: 1; }
+
+  .examples { margin: 0 0 10px; padding: 0; list-style: none; color: var(--faint); font-size: 16px; }
+  .examples li::before { content: "예) "; }
+
+  /* 계산 중 */
+  .calc { text-align: center; padding-top: 30vh; font-size: 24px; font-weight: 700; }
+  .calc .roll { display: inline-block; animation: wob .6s ease-in-out infinite alternate; }
+  @keyframes wob { from { transform: rotate(-10deg); } to { transform: rotate(10deg); } }
+
+  /* 영수증 */
+  .receipt {
+    background: var(--card); border: 2px dashed var(--faint); border-radius: 6px;
+    padding: 20px 16px; margin: 8px 0 14px;
+  }
+  .rc-head { text-align: center; font-size: 22px; font-weight: 800; }
+  .rc-sub { text-align: center; font-size: 14px; color: var(--soft); margin-top: 2px; }
+  .rc-cut { border-top: 2px dashed var(--line); margin: 16px 0; }
+  .rc-label { font-size: 14px; color: var(--soft); font-weight: 700; margin-bottom: 8px; }
+  .rc-set { text-align: center; font-weight: 800; color: var(--accent); margin-bottom: 6px; }
+  .mains { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
+  .main { flex: 1 1 140px; text-align: center; }
+  .main .em { font-size: 60px; line-height: 1.2; }
+  .main .nm { font-size: 21px; font-weight: 800; }
+  .main .ln { font-size: 16px; color: var(--soft); margin-top: 4px; }
+  .mains.many .main .em { font-size: 44px; }
+  .mains.many .main .nm { font-size: 17px; }
+  .mains.many .main .ln { font-size: 14px; }
+  .rel { display: flex; gap: 10px; align-items: baseline; margin-bottom: 6px; }
+  .rel .em { font-size: 24px; flex: none; }
+  .rel .nm { font-weight: 700; }
+  .rel-for { font-size: 14px; color: var(--soft); margin: 10px 0 4px; }
+  .note { font-size: 14px; color: var(--soft); margin-top: 2px; }
+  .rc-total { display: flex; justify-content: space-between; font-weight: 800; }
+
+  /* 피드백 */
+  .section { margin-top: 30px; }
+  .section h3 { font-size: 20px; margin: 0 0 6px; }
+  .q { font-weight: 600; margin: 20px 0 8px; }
+  .q span { font-weight: 400; color: var(--soft); font-size: 14px; }
+  .seg { display: flex; gap: 8px; }
+  .seg button {
+    flex: 1; padding: 12px 0; border: 2px solid var(--line); border-radius: 12px; background: var(--card); font-size: 18px;
+  }
+  .seg button.on { border-color: var(--accent); background: var(--pick); font-weight: 700; }
+  .seg-cap { display: flex; justify-content: space-between; font-size: 13px; color: var(--soft); margin-top: 4px; }
+  #codeBox { font-family: ui-monospace, Menlo, monospace; font-size: 13px; line-height: 1.5; min-height: 200px; margin-top: 12px; background: #fffdf9; }
+  .status { font-size: 16px; font-weight: 600; margin-top: 10px; min-height: 1em; }
+</style>
+</head>
+<body>
+<main id="app"></main>
+<script>
+"use strict";
+
+/* ===== 데이터 ===== */
+
+// 원 위 순서 (바로 옆끼리 닮은꼴, UN 다음은 다시 SD)
+const SNACKS = [
+  { c: "SD", n: "자율주행 베이글", e: "🥯", l: "동그란 바퀴 모양 그대로, 누가 밀지 않아도 내 멋대로 굴러가요" },
+  { c: "ST", n: "톡톡 튀는 팝핑캔디", e: "🍬", l: "심심한 건 못 참아, 일단 터뜨려 보자" },
+  { c: "HE", n: "인생은 단짠 소금빵", e: "🥐", l: "오늘 행복은 오늘 챙긴다" },
+  { c: "AC", n: "끝판왕 크루아상", e: "🥐", l: "할 거면 제대로, 깰 거면 끝판까지" },
+  { c: "PO", n: "보스 등판 홀케이크", e: "🎂", l: "판이 어지러우면 내가 정리한다" },
+  { c: "SE", n: "유비무환 식빵", e: "🍞", l: "괜찮아, 내가 미리 준비해 뒀거든" },
+  { c: "CO", n: "칼각 마들렌", e: "🧁", l: "선 지키는 게 제일 멋있어" },
+  { c: "TR", n: "할매니얼 약과", e: "🍯", l: "오래 남은 데는 다 이유가 있다" },
+  { c: "BE", n: "내 사람 한정 꿀호떡", e: "🥞", l: "내 사람이 행복하면 그걸로 됐어" },
+  { c: "UN", n: "세계평화 비건 쿠키", e: "🍪", l: "모두에게 괜찮은 세상이 내가 바라는 세상" },
+];
+const CIRCLE = SNACKS.map(s => s.c);
+const SNACK = Object.fromEntries(SNACKS.map(s => [s.c, s]));
+const OPPOSITE = { SD: "CO", CO: "SD", ST: "SE", SE: "ST", HE: "TR", TR: "HE", AC: "BE", BE: "AC", PO: "UN", UN: "PO" };
+
+// 네 방향: E=🧭, A=🏆, S=🛡, B=🤝
+const DIRS = ["E", "A", "S", "B"];
+const DIR_EMOJI = { E: "🧭", A: "🏆", S: "🛡", B: "🤝" };
+
+function o(d, c, x, e) { return e ? { d, c, x, e } : { d, c, x }; }
+
+// 1단계 (d·c는 채점용, 화면에 절대 표시하지 않음)
+const STAGE1 = [
+  { t: "알람 없이 눈을 뜬 토요일 아침", k: "plain", o: [
+    o("E", "SD", "만들어 보고 싶던 걸 혼자 꺼내 놓는다"),
+    o("A", "AC", "이번 주 목표 체크리스트부터 본다"),
+    o("S", "SE", "다음 주 먹을 반찬을 미리 해 둔다"),
+    o("B", "BE", "부모님께 먼저 안부 전화를 건다"),
+  ] },
+  { t: "동네 서점, 손이 먼저 가는 책", k: "book", o: [
+    o("E", "HE", "『오늘도 맛있게 삽니다』"),
+    o("A", "PO", "『판을 읽는 사람이 이긴다』"),
+    o("S", "CO", "『선을 지키는 어른의 말투』"),
+    o("B", "BE", "『곁에 있는 사람을 지키는 법』"),
+  ] },
+  { t: "점심 먹고 오후 두 시간이 비었다", k: "plain", o: [
+    o("E", "SD", "궁금했던 걸 혼자 찾아보며 파고든다"),
+    o("A", "AC", "따고 싶은 자격증 진도를 쭉 뺀다"),
+    o("S", "SE", "미뤄 둔 건강검진 예약을 잡는다"),
+    o("B", "UN", "동네 유기견 보호소 봉사를 간다"),
+  ] },
+  { t: "인스타그램에 올리고 싶은 사진", k: "frame", o: [
+    o("E", "ST", "처음 가 본 여행지", "✈️"),
+    o("A", "AC", "오운완 (오늘 운동 완료) 인증", "🏋️"),
+    o("S", "CO", "결혼식 하객룩", "👗"),
+    o("B", "BE", "소중한 사람과 함께 찍은 사진", "📸"),
+  ] },
+  { t: "카페에서 유튜브가 띄워 준 영상", k: "thumb", o: [
+    o("E", "ST", "「무계획 세계 일주 D+100」"),
+    o("A", "PO", "「사람을 움직이는 리더의 말 한마디」"),
+    o("S", "TR", "「할머니께 배우는 옛날 손맛」"),
+    o("B", "UN", "「일주일 동안 쓰레기 안 만들기 도전」"),
+  ] },
+  { t: "가족 생일 모임, 나한테 제일 중요한 건", k: "plain", o: [
+    o("E", "HE", "케이크랑 음식이 맛있어야 한다"),
+    o("A", "PO", "다들 감탄할 근사한 곳에서 하는 것"),
+    o("S", "TR", "미역국은 꼭 직접 끓여 가는 것"),
+    o("B", "UN", "식당 직원분들께도 케이크 한 조각씩"),
+  ] },
+];
+
+// 2단계 세트 (문항 7~12)
+const SETS = {
+  E: [
+    { t: "집에 오는 길", k: "plain", o: [
+      o("E", "SD", "내가 찾아 둔 지름길로 걸어 본다"),
+      o("E", "ST", "처음 보는 골목으로 일부러 돌아간다"),
+      o("E", "HE", "좋아하는 디저트 하나 사 들고 간다"),
+    ] },
+    { t: "넷플릭스에서 고른 것", k: "thumb", o: [
+      o("E", "SD", "「혼자 집 짓는 남자」"),
+      o("E", "ST", "「아마존 정글 72시간」"),
+      o("E", "HE", "「한밤의 디저트 투어」"),
+    ] },
+    { t: "인스타그램에 올리고 싶은 사진", k: "frame", o: [
+      o("E", "SD", "직접 만든 것 인증 (요리·그림·DIY)", "🎨"),
+      o("E", "ST", "서핑 같은 액티비티", "🏄"),
+      o("E", "HE", "맛집 디저트", "🍨"),
+    ] },
+    { t: "샤워하다 든 생각", k: "plain", o: [
+      o("E", "SD", "내 이름 건 작업을 해 보고 싶다"),
+      o("E", "ST", "확 다른 곳에서 살아 보고 싶다"),
+      o("E", "HE", "다음 주말엔 아무것도 안 하고 싶다"),
+    ] },
+    { t: "잠들기 전 다이어리 한 줄", k: "plain", o: [
+      o("E", "SD", "내 기준으로 하나 만들어 보기"),
+      o("E", "ST", "해 본 적 없는 일 하나 도전하기"),
+      o("E", "HE", "나한테 주는 선물 아끼지 않기"),
+    ] },
+    { t: "꿈에서 만난 10년 뒤의 내가 하는 말", k: "plain", o: [
+      o("E", "SD", "“남 눈치 안 보고 내 길을 냈네”"),
+      o("E", "ST", "“인생이 영화 같았네”"),
+      o("E", "HE", "“진짜 잘 즐기며 살았네”"),
+    ] },
+  ],
+  A: [
+    { t: "집에 오는 길", k: "plain", o: [
+      o("A", "AC", "다음 주 발표 자료를 한 번 더 고친다"),
+      o("A", "PO", "모임 운영진 단톡에 공지를 올린다"),
+      o("A", "HE", "야식 메뉴를 고른다"),
+    ] },
+    { t: "넷플릭스에서 고른 것", k: "thumb", o: [
+      o("A", "AC", "「최연소 셰프의 미슐랭 도전기」"),
+      o("A", "PO", "「거대 기업을 움직인 CEO들」"),
+      o("A", "HE", "「한밤의 디저트 투어」"),
+    ] },
+    { t: "인스타그램에 올리고 싶은 사진", k: "frame", o: [
+      o("A", "AC", "공부 기록 타임랩스", "⏱️"),
+      o("A", "PO", "무대에서 발표하는 모습", "🎤"),
+      o("A", "HE", "호캉스", "🏨"),
+    ] },
+    { t: "샤워하다 든 생각", k: "plain", o: [
+      o("A", "AC", "이 분야에서 최고 소리 듣고 싶다"),
+      o("A", "PO", "내가 이끄는 팀을 꾸려 보고 싶다"),
+      o("A", "HE", "다음 주말엔 아무것도 안 하고 싶다"),
+    ] },
+    { t: "잠들기 전 다이어리 한 줄", k: "plain", o: [
+      o("A", "AC", "올해 목표 숫자 달성하기"),
+      o("A", "PO", "더 큰 자리로 올라가기"),
+      o("A", "HE", "나한테 주는 선물 아끼지 않기"),
+    ] },
+    { t: "꿈에서 만난 10년 뒤의 내가 하는 말", k: "plain", o: [
+      o("A", "AC", "“그 분야 최고가 됐네”"),
+      o("A", "PO", "“사람들이 네 말이면 움직이네”"),
+      o("A", "HE", "“진짜 잘 즐기며 살았네”"),
+    ] },
+  ],
+  S: [
+    { t: "집에 오는 길", k: "plain", o: [
+      o("S", "SE", "밤길 밝은 큰길로 돌아간다"),
+      o("S", "CO", "버스에서 온 전화는 내려서 받는다"),
+      o("S", "TR", "가는 길에 다니는 성당에 들른다"),
+    ] },
+    { t: "서점 앱 장바구니에 담은 책", k: "book", o: [
+      o("S", "SE", "『혼자 사는 집 안전 점검 리스트』"),
+      o("S", "CO", "『어디서나 환영받는 매너의 기술』"),
+      o("S", "TR", "『할머니의 사계절 밥상』"),
+    ] },
+    { t: "인스타그램에 올리고 싶은 사진", k: "frame", o: [
+      o("S", "SE", "통장 쪼개기·짠테크 인증", "💰"),
+      o("S", "CO", "요즘 다들 하는 챌린지 따라 하기", "🕺"),
+      o("S", "TR", "할머니 레시피로 만든 음식", "🍲"),
+    ] },
+    { t: "샤워하다 든 생각", k: "plain", o: [
+      o("S", "SE", "비상금 좀 더 모아 둬야겠다"),
+      o("S", "CO", "아까 그 말 실례였나 다시 떠올린다"),
+      o("S", "TR", "제사 음식은 이제 내가 배워 둬야겠다"),
+    ] },
+    { t: "잠들기 전 다이어리 한 줄", k: "plain", o: [
+      o("S", "SE", "건강검진이랑 보험 정리하기"),
+      o("S", "CO", "약속 시간 한 번도 안 어기기"),
+      o("S", "TR", "부모님께 집안 음식 하나 배우기"),
+    ] },
+    { t: "꿈에서 만난 10년 뒤의 내가 하는 말", k: "plain", o: [
+      o("S", "SE", "“늘 든든하게 대비해 뒀네”"),
+      o("S", "CO", "“어디서나 예의 바른 사람이 됐네”"),
+      o("S", "TR", "“집안 전통을 잘 이어 왔네”"),
+    ] },
+  ],
+  B: [
+    { t: "집에 오는 길", k: "plain", o: [
+      o("B", "BE", "친구 집 문고리에 반찬을 걸어 두고 간다"),
+      o("B", "UN", "길고양이 급식소 물을 갈아 준다"),
+    ] },
+    { t: "넷플릭스에서 고른 것", k: "thumb", o: [
+      o("B", "BE", "「오래된 친구와 늙어 가는 법」"),
+      o("B", "UN", "「모두가 함께 사는 도시」"),
+    ] },
+    { t: "인스타그램에 올리고 싶은 사진", k: "frame", o: [
+      o("B", "BE", "엄마랑 데이트한 날", "👩‍👧"),
+      o("B", "UN", "플로깅·제로웨이스트 인증", "♻️"),
+    ] },
+    { t: "샤워하다 든 생각", k: "plain", o: [
+      o("B", "BE", "엄마 생신 선물 뭐 하지"),
+      o("B", "UN", "오늘 뉴스 속 그 사람들 괜찮을까"),
+    ] },
+    { t: "잠들기 전 다이어리 한 줄", k: "plain", o: [
+      o("B", "BE", "가까운 사람들 더 자주 보기"),
+      o("B", "UN", "매달 정기 후원 시작하기"),
+    ] },
+    { t: "꿈에서 만난 10년 뒤의 내가 하는 말", k: "plain", o: [
+      o("B", "BE", "“곁에 있는 사람들 끝까지 챙겼네”"),
+      o("B", "UN", "“세상을 조금 더 공평하게 만들었네”"),
+    ] },
+  ],
+};
+
+/* ===== 채점 (화면과 분리된 순수 함수) ===== */
+
+function shuffle(arr, rng) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(rng() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+// 1단계: 고른 보기의 방향을 센다
+function countDirs(dirs) {
+  const n = { E: 0, A: 0, S: 0, B: 0 };
+  dirs.forEach(d => { n[d]++; });
+  return n;
+}
+
+// 2단계 세트 정하기
+function chooseSet(counts, rng) {
+  rng = rng || Math.random;
+  const top = Math.max(...DIRS.map(d => counts[d]));
+  const tied = DIRS.filter(d => counts[d] === top);
+  if (tied.length >= 3) {
+    const pick = shuffle(tied, rng);
+    return { mode: "random", first: pick[0], second: pick[1], tied };
+  }
+  // 동점은 무작위 순서로 (섞은 뒤 안정 정렬)
+  const sorted = shuffle(DIRS, rng).sort((a, b) => counts[b] - counts[a]);
+  const first = sorted[0], second = sorted[1];
+  if (counts[first] - counts[second] >= 2) return { mode: "single", first, second: null };
+  return { mode: "mixed", first, second, tie: counts[first] === counts[second] };
+}
+
+// 섞은 세트 = 1위 세트의 7·9·11번 + 2위 세트의 8·10·12번 (7→12 순서)
+function buildStage2(info) {
+  if (info.mode === "single") return SETS[info.first].slice();
+  return SETS[info.first].map((q, i) => (i % 2 === 0 ? q : SETS[info.second][i]));
+}
+
+// 2단계 간식 점수 → 겉 캐릭터
+function snackResult(codes) {
+  const n = {};
+  codes.forEach(c => { n[c] = (n[c] || 0) + 1; });
+  const max = Math.max(0, ...Object.values(n));
+  const tops = CIRCLE.filter(c => n[c] === max && max > 0);
+  const type = tops.length === 1 ? "single" : tops.length === 2 ? "half" : "mix";
+  return { counts: n, tops, type };
+}
+
+function neighbors(code) {
+  const i = CIRCLE.indexOf(code);
+  return [CIRCLE[(i + 9) % 10], CIRCLE[(i + 1) % 10]];
+}
+function opposite(code) { return OPPOSITE[code]; }
+
+/* ===== 화면 ===== */
+
+const PALETTE = ["#f6d9b8", "#d9e6cf", "#d6e2ef", "#efd6de", "#e9e0c7", "#e0d6ef"];
+const DUR = ["12:04", "8:31", "15:47", "21:09"];
+
+const S = {
+  nick: "", startAt: 0, endAt: 0,
+  qi: 0, enterAt: 0,
+  picks: [],      // 문항별 고른 보기 객체
+  hard: [],       // 어려웠어요 체크
+  times: [],      // 머문 시간(ms, 다시 와도 누적)
+  orders: [],     // 문항별 보기 순서(처음 볼 때 한 번 섞음)
+  setInfo: null, setKey: "", stage2: [],
+  sheet1: "", sheet2: "",
+  fb: { fit: null, story: null, odd: "" },
+  result: null,
+};
+
+const app = typeof document !== "undefined" ? document.getElementById("app") : null;
+
+function esc(s) {
+  return String(s).replace(/[&<>"']/g, ch => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch]));
+}
+function questionAt(i) { return i < 6 ? STAGE1[i] : S.stage2[i - 6]; }
+function bags(n) { return "🛍".repeat(n); }
+
+function renderStart() {
+  app.innerHTML = `
+    <div class="hero">🛎️🧺</div>
+    <h1>빵집에서 고르는 나의 간식 <span class="badge">시험판</span></h1>
+    <p style="margin-top:14px">딸랑, 빵집 문을 열었어요. 쟁반 하나, 집게 하나. 마음 가는 대로 하나씩 담아 보세요. 계산대에서 오늘의 내 간식이 나와요.</p>
+    <p class="small">딱 맞는 게 없으면 제일 가까운 걸로 골라 주세요. 정답은 없어요.</p>
+    <label class="field" for="nick">이름(별명) <span>선택</span></label>
+    <input type="text" id="nick" maxlength="20" autocomplete="off" placeholder="예: 띰구" value="${esc(S.nick)}">
+    <button class="primary" id="go">시작</button>
+    <p class="tiny" style="margin-top:16px">입력한 내용은 이 화면에만 있고, 복사해서 보내 주실 때만 전달돼요.</p>`;
+  document.getElementById("go").onclick = () => {
+    S.nick = document.getElementById("nick").value.trim();
+    S.startAt = Date.now();
+    S.qi = 0;
+    renderQuestion();
+  };
+}
+
+function optionHTML(q, opt, pos) {
+  const cv = `style="--cv:${PALETTE[pos % PALETTE.length]}"`;
+  if (q.k === "book") return `<span class="ttl">${esc(opt.x)}</span><span class="by">동네책방 추천</span>`;
+  if (q.k === "frame") return `<span class="pic" ${cv}>${opt.e || "🖼️"}</span><span class="cap">${esc(opt.x)}</span>`;
+  if (q.k === "thumb") return `<span class="tb" ${cv}><span class="dur">${DUR[pos % DUR.length]}</span></span><span class="tt">${esc(opt.x)}</span>`;
+  return esc(opt.x);
+}
+
+function renderQuestion() {
+  const i = S.qi, q = questionAt(i);
+  if (!S.orders[i]) S.orders[i] = shuffle(q.o.map((_, k) => k), Math.random);
+  const order = S.orders[i];
+  const picked = S.picks[i];
+  app.innerHTML = `
+    <div class="bags" aria-label="담은 쟁반">${bags(i + 1)}</div>
+    <h2>${esc(q.t)}</h2>
+    <div class="opts ${q.k}">
+      ${order.map((k, pos) => {
+        const opt = q.o[k];
+        const bookColor = q.k === "book" ? ` style="--cv:${PALETTE[pos % PALETTE.length]}"` : "";
+        return `<button class="opt${picked === opt ? " on" : ""}" data-k="${k}"${bookColor}>${optionHTML(q, opt, pos)}</button>`;
+      }).join("")}
+    </div>
+    <label class="hard"><input type="checkbox" id="hard"${S.hard[i] ? " checked" : ""}> 이 문항은 고르기 어려웠어요</label>
+    <div class="nav">
+      ${i > 0 ? `<button class="ghost" id="back">← 뒤로</button>` : ""}
+      <button class="primary" id="next"${picked ? "" : " disabled"}>다음 →</button>
+    </div>`;
+  S.enterAt = Date.now();
+  window.scrollTo(0, 0);
+
+  app.querySelectorAll(".opt").forEach(btn => {
+    btn.onclick = () => {
+      S.picks[i] = q.o[+btn.dataset.k];
+      app.querySelectorAll(".opt").forEach(b => b.classList.toggle("on", b === btn));
+      document.getElementById("next").disabled = false;
+    };
+  });
+  document.getElementById("hard").onchange = e => { S.hard[i] = e.target.checked; };
+  const back = document.getElementById("back");
+  if (back) back.onclick = () => { leaveQuestion(); S.qi--; renderQuestion(); };
+  document.getElementById("next").onclick = () => {
+    if (!S.picks[i]) return;
+    leaveQuestion();
+    if (i === 5) prepareStage2();
+    if (i === 11) { renderSheet(); return; }
+    S.qi++;
+    renderQuestion();
+  };
+}
+
+function leaveQuestion() {
+  const i = S.qi;
+  S.times[i] = (S.times[i] || 0) + (Date.now() - S.enterAt);
+}
+
+// 1단계 답이 바뀌어 방향 점수가 달라졌을 때만 세트를 새로 정한다
+function prepareStage2() {
+  const counts = countDirs(S.picks.slice(0, 6).map(p => p.d));
+  const key = DIRS.map(d => counts[d]).join(",");
+  if (key === S.setKey && S.setInfo) return;
+  const info = chooseSet(counts);
+  const stage2 = buildStage2(info);
+  const same = S.stage2.length && stage2.every((q, k) => q === S.stage2[k]);
+  S.setKey = key;
+  S.setInfo = info;
+  S.counts = counts;
+  if (!same) {
+    S.stage2 = stage2;
+    for (let k = 6; k < 12; k++) { S.picks[k] = undefined; S.orders[k] = undefined; S.hard[k] = false; S.times[k] = 0; }
+  }
+}
+
+function renderSheet() {
+  app.innerHTML = `
+    <div class="bags">${bags(12)}🧾</div>
+    <h2>계산 전, 마지막으로 주문서 한 장</h2>
+    <p>내 빵 속에 몰래 넣을 재료 한 스푼: 요즘 은근히 마음에 걸리는 것 하나를 적어 주세요. 쓴맛도 빵을 깊게 만들어요.</p>
+    <ul class="examples">
+      <li>친구들은 다 자리 잡는 것 같은데 나만 제자리인 것</li>
+      <li>부모님이 나이 드시는 것</li>
+    </ul>
+    <textarea id="s1" aria-label="마음에 걸리는 것">${esc(S.sheet1)}</textarea>
+    <label class="field" for="s2">이 재료를 넣는 솔직한 이유는요? <span>선택</span></label>
+    <textarea id="s2">${esc(S.sheet2)}</textarea>
+    <p class="tiny" style="margin-top:10px">비워 두고 넘어가셔도 괜찮아요.</p>
+    <div class="nav">
+      <button class="ghost" id="back">← 뒤로</button>
+      <button class="primary" id="pay"></button>
+    </div>`;
+  window.scrollTo(0, 0);
+  const s1 = document.getElementById("s1"), s2 = document.getElementById("s2"), pay = document.getElementById("pay");
+  const label = () => { pay.textContent = s1.value.trim() || s2.value.trim() ? "계산하기 🧾" : "건너뛰고 계산하기"; };
+  s1.oninput = s2.oninput = () => { S.sheet1 = s1.value; S.sheet2 = s2.value; label(); };
+  label();
+  document.getElementById("back").onclick = () => { S.qi = 11; renderQuestion(); };
+  pay.onclick = () => {
+    S.sheet1 = s1.value; S.sheet2 = s2.value;
+    S.endAt = Date.now();
+    S.result = snackResult(S.picks.slice(6, 12).map(p => p.c));
+    app.innerHTML = `<div class="calc"><span class="roll">🧾</span><br>계산 중…</div>`;
+    window.scrollTo(0, 0);
+    setTimeout(renderResult, 2000);
+  };
+}
+
+function snackLine(c) {
+  const s = SNACK[c];
+  return `<div class="rel"><span class="em">${s.e}</span><span><span class="nm">${esc(s.n)}</span></span></div>`;
+}
+
+function renderResult() {
+  const r = S.result;
+  const many = r.tops.length > 1;
+  const setName = r.type === "half" ? "반반 세트" : r.type === "mix" ? "모둠 세트" : "";
+  const rel = (fn) => r.tops.map(c => `
+      ${many ? `<div class="rel-for">${SNACK[c].e} ${esc(SNACK[c].n)} 기준</div>` : ""}
+      ${[].concat(fn(c)).map(snackLine).join("")}`).join("");
+
+  app.innerHTML = `
+    <div class="receipt">
+      <div class="rc-head">🧾 오늘의 영수증</div>
+      <div class="rc-sub">${S.nick ? esc(S.nick) + "님 · " : ""}${fmtDate(new Date(S.endAt))}</div>
+      <div class="rc-cut"></div>
+      <div class="rc-label">겉</div>
+      ${setName ? `<div class="rc-set">${setName}</div>` : ""}
+      <div class="mains${r.tops.length > 2 ? " many" : ""}">
+        ${r.tops.map(c => `<div class="main"><div class="em">${SNACK[c].e}</div><div class="nm">${esc(SNACK[c].n)}</div><div class="ln">${esc(SNACK[c].l)}</div></div>`).join("")}
+      </div>
+      <div class="rc-cut"></div>
+      <div class="rc-label">닮은꼴 띰구</div>
+      ${rel(neighbors)}
+      <div class="rc-cut"></div>
+      <div class="rc-label">다른 맛 띰구</div>
+      ${rel(opposite)}
+      <div class="note">마음이 움직이는 이유가 나랑 정반대예요</div>
+      <div class="rc-cut"></div>
+      <div class="rc-label">속</div>
+      <div>🥄 속 재료는 만든 사람이 직접 읽고 알려 드려요</div>
+      <div class="rc-cut"></div>
+      <div class="rc-total"><span>합계</span><span>마음 한 쟁반</span></div>
+    </div>
+    <p class="tiny">이 테스트는 심리학 교육자 ＠mind__builder가 Schwartz 가치 이론으로 만들었어요. (시험판)</p>
+
+    <div class="section">
+      <h3>잠깐, 한 가지만 부탁드려요 🙏</h3>
+      <p class="small">모두 선택이에요. 답한 만큼만 결과 코드에 들어가요.</p>
+      <div class="q">결과가 나랑 얼마나 맞아요?</div>
+      <div class="seg" id="fit">${[1, 2, 3, 4, 5].map(v => `<button data-v="${v}">${v}</button>`).join("")}</div>
+      <div class="seg-cap"><span>전혀 아니에요</span><span>꼭 맞아요</span></div>
+      <div class="q">스토리에 올리고 싶어요?</div>
+      <div class="seg" id="story">${["예", "글쎄", "아니요"].map(v => `<button data-v="${v}">${v}</button>`).join("")}</div>
+      <div class="q">이상하거나 어색했던 점</div>
+      <textarea id="odd" placeholder="문항, 결과 문구, 화면 등 무엇이든 좋아요"></textarea>
+
+      <button class="primary" id="copy">결과 코드 복사</button>
+      <p class="status" id="status"></p>
+      <p class="small" style="margin-top:6px">복사해서 만든 사람에게 카톡으로 보내 주세요 🙏</p>
+      <p class="tiny">자동 복사가 안 되면 아래 상자를 길게 눌러 '전체 선택' → '복사' 해 주세요.</p>
+      <textarea id="codeBox" readonly aria-label="결과 코드"></textarea>
+      <p class="tiny" style="margin-top:10px">입력한 내용은 이 화면에만 있고, 복사해서 보내 주실 때만 전달돼요.</p>
+    </div>`;
+  window.scrollTo(0, 0);
+
+  const box = document.getElementById("codeBox");
+  const refresh = () => { box.value = buildCode(); };
+  ["fit", "story"].forEach(id => {
+    const wrap = document.getElementById(id);
+    wrap.querySelectorAll("button").forEach(b => {
+      b.onclick = () => {
+        const v = id === "fit" ? +b.dataset.v : b.dataset.v;
+        S.fb[id] = S.fb[id] === v ? null : v;
+        wrap.querySelectorAll("button").forEach(x => x.classList.toggle("on", x === b && S.fb[id] !== null));
+        refresh();
+      };
+    });
+  });
+  document.getElementById("odd").oninput = e => { S.fb.odd = e.target.value; refresh(); };
+  document.getElementById("copy").onclick = () => copyCode(box);
+  refresh();
+}
+
+/* ===== 결과 코드 ===== */
+
+function pad(n) { return String(n).padStart(2, "0"); }
+function fmtDate(d) {
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+function sec(ms) { return (Math.round((ms || 0) / 100) / 10).toFixed(1); }
+
+function setLabel(info) {
+  const f = DIR_EMOJI[info.first], s = info.second && DIR_EMOJI[info.second];
+  if (info.mode === "single") return `단일 (${f})`;
+  if (info.mode === "random") return `무작위 (${info.tied.map(d => DIR_EMOJI[d]).join("·")} 동점 → ${f} 7·9·11 + ${s} 8·10·12)`;
+  return `섞음 (${f} 7·9·11 + ${s} 8·10·12${info.tie ? ", 1·2위 동점이라 순서는 무작위" : ""})`;
+}
+
+function buildCode() {
+  const r = S.result, c = S.counts;
+  const shown = CIRCLE.filter(code => S.stage2.some(q => q.o.some(op => op.c === code)));
+  const outer = r.tops.map(code => `${code} ${SNACK[code].n}`).join(" + ");
+  const typeName = r.type === "half" ? "반반 세트: " : r.type === "mix" ? "모둠 세트: " : "";
+  const lines = [
+    "[간식 가치관 테스트 · 시험판 결과 코드]",
+    `별명: ${S.nick || "(없음)"}`,
+    `일시: ${fmtDate(new Date(S.startAt))}`,
+    `총 걸린 시간: ${Math.round((S.endAt - S.startAt) / 1000)}초`,
+    `1단계 방향 점수: ${DIRS.map(d => DIR_EMOJI[d] + c[d]).join(" ")}`,
+    `2단계 세트: ${setLabel(S.setInfo)}`,
+    `2단계 간식 점수: ${shown.map(code => code + (r.counts[code] || 0)).join(" ")}`,
+    `겉 캐릭터: ${typeName}${outer}`,
+    "",
+    "[문항] 번호. 상황 | 고른 보기 [코드] | 머문 시간 | 어려웠어요",
+  ];
+  for (let i = 0; i < 12; i++) {
+    const q = questionAt(i), p = S.picks[i];
+    const code = i < 6 ? DIR_EMOJI[p.d] + p.c : p.c;
+    lines.push(`${i + 1}. ${q.t} | ${p.x} [${code}] | ${sec(S.times[i])}초 | ${S.hard[i] ? "✔" : "-"}`);
+  }
+  lines.push(
+    "",
+    "[속 재료 주문서]",
+    `마음에 걸리는 것: ${S.sheet1.trim() || "(건너뜀)"}`,
+    `솔직한 이유: ${S.sheet2.trim() || "(건너뜀)"}`,
+    "",
+    "[피드백]",
+    `얼마나 맞아요(1~5): ${S.fb.fit ?? "(무응답)"}`,
+    `스토리에 올리고 싶어요: ${S.fb.story ?? "(무응답)"}`,
+    `이상하거나 어색했던 점: ${S.fb.odd.trim() || "(무응답)"}`,
+  );
+  return lines.join("\n");
+}
+
+function legacyCopy(text) {
+  const ta = document.createElement("textarea");
+  ta.value = text;
+  ta.setAttribute("readonly", "");
+  ta.style.cssText = "position:fixed;top:0;left:-9999px;font-size:12pt;opacity:0;";
+  document.body.appendChild(ta);
+  ta.select();
+  ta.setSelectionRange(0, text.length);
+  let ok = false;
+  try { ok = document.execCommand("copy"); } catch (e) { ok = false; }
+  document.body.removeChild(ta);
+  return ok;
+}
+
+function copyCode(box) {
+  const text = buildCode();
+  box.value = text;
+  const status = document.getElementById("status");
+  const done = () => { status.textContent = "복사됐어요! 카톡 창에 붙여 넣어 주세요 ✅"; };
+  const fail = () => {
+    status.textContent = "자동 복사가 안 됐어요. 아래 상자를 길게 눌러 복사해 주세요.";
+    box.focus();
+    box.setSelectionRange(0, text.length);
+    box.scrollIntoView({ block: "center" });
+  };
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(text).then(done, () => (legacyCopy(text) ? done() : fail()));
+  } else {
+    legacyCopy(text) ? done() : fail();
+  }
+}
+
+if (app) renderStart();
+</script>
+</body>
+</html>
