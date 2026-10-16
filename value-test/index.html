@@ -157,6 +157,32 @@
   .note { font-size: 14px; color: var(--soft); margin-top: 2px; }
   .rc-total { display: flex; justify-content: space-between; font-weight: 800; }
 
+  /* 해설 */
+  .card { background: var(--card); border-radius: 18px; padding: 22px 18px; margin: 12px 0 16px; box-shadow: 0 2px 10px rgba(60,40,20,.07); }
+  .card-top { text-align: center; margin-bottom: 16px; }
+  .card-top .em { font-size: 64px; line-height: 1.2; }
+  .card-top .nm { font-size: 24px; font-weight: 800; }
+  .card-top .ln { font-size: 17px; color: var(--accent); font-weight: 700; margin-top: 4px; }
+  .tags { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin-top: 12px; }
+  .tags span { font-size: 13px; padding: 3px 10px; border-radius: 999px; background: var(--pick); color: var(--ink); }
+  .card h4 { font-size: 17px; margin: 18px 0 6px; }
+  .card p, .card li { font-size: 17px; }
+  .card ul { margin: 0; padding-left: 20px; }
+  .card li { margin-bottom: 4px; }
+  .pair2 { display: flex; gap: 10px; margin-top: 18px; }
+  .pair2 > div { flex: 1; text-align: center; padding: 12px 8px; border: 2px dashed var(--line); border-radius: 12px; }
+  .pair2 b { display: block; font-size: 14px; color: var(--accent); }
+  .pair2 span { display: block; font-size: 16px; line-height: 1.45; margin-top: 2px; }
+  .rel-card { background: var(--card); border-radius: 14px; padding: 16px; margin: 10px 0; }
+  .rel-card .rel-h { display: flex; gap: 12px; align-items: center; margin-bottom: 8px; }
+  .rel-card .rel-h .em { font-size: 40px; flex: none; }
+  .rel-card .nm { font-weight: 800; font-size: 18px; }
+  .rel-card .ln { font-size: 14px; color: var(--soft); line-height: 1.45; }
+  .rel-card p { font-size: 16px; margin: 6px 0 0; }
+  .rel-card .learn { background: var(--pick); border-radius: 10px; padding: 10px 12px; margin-top: 10px; }
+  .rel-card .learn b { display: block; font-size: 14px; color: var(--accent); }
+  .about p { font-size: 16px; color: var(--soft); }
+
   /* 피드백 */
   .section { margin-top: 30px; }
   .section h3 { font-size: 20px; margin: 0 0 6px; }
@@ -195,6 +221,127 @@ const SNACKS = [
 const CIRCLE = SNACKS.map(s => s.c);
 const SNACK = Object.fromEntries(SNACKS.map(s => [s.c, s]));
 const OPPOSITE = { SD: "CO", CO: "SD", ST: "SE", SE: "ST", HE: "TR", TR: "HE", AC: "BE", BE: "AC", PO: "UN", UN: "PO" };
+
+// 간식별 해설 (결과 화면에서만 사용)
+const DETAIL = {
+  SD: {
+    v: "자기주도", ve: "Self-Direction", dirs: ["E"],
+    desc: "내 생각으로 고르고, 내 손으로 만들고, 내 방식으로 해 보는 것. 자율주행 베이글 띰구에게 제일 중요한 건 ‘스스로’예요. 누가 정해 준 지름길보다 내가 찾은 길이 조금 돌아가더라도 훨씬 맛있어요.",
+    moves: ["누가 시키지 않았는데 궁금해서 파고들 때", "“네 방식대로 해 봐”라는 말을 들을 때", "직접 만든 무언가를 끝까지 완성했을 때"],
+    power: "남들이 안 해 본 방법을 떠올리고, 혼자서도 끝까지 굴러가는 힘이 있어요. 새 판을 짜야 할 때 제일 먼저 빛나요.",
+    shadow: "간섭이 느껴지면 확 식어 버리거나, 도움 요청을 자꾸 미루기도 해요. 혼자 굴러가는 것과 혼자 버티는 건 달라요.",
+    tip: "이번 주에 ‘내 방식’으로 해 볼 작은 일 하나를 정해 보세요. 라면 한 그릇을 내 레시피로 끓이는 것도 좋아요.",
+    drink: "혼자 오래 우려낸 콜드브루", spot: "아무도 없는 나만의 작업실",
+  },
+  ST: {
+    v: "자극", ve: "Stimulation", dirs: ["E"],
+    desc: "새롭고, 짜릿하고, 해 본 적 없는 것. 팝핑캔디 띰구는 입안에서 톡톡 터지는 순간처럼 ‘살아 있다’는 느낌을 좋아해요. 같은 하루가 반복되면 몸보다 마음이 먼저 심심해져요.",
+    moves: ["처음 가 보는 곳, 처음 해 보는 일 앞에서", "예상 못 한 일이 생겼는데 오히려 신날 때", "“이거 될까?” 싶은 도전을 해 볼 때"],
+    power: "변화 앞에서 겁보다 호기심이 먼저 와요. 분위기를 띄우고, 망설이는 사람이 첫발을 떼게 도와줘요.",
+    shadow: "익숙해지면 금방 지루해져서 시작은 많은데 마무리가 아쉬울 때가 있어요. 반복 속에 작은 새로움을 숨겨 두면 오래 가요.",
+    tip: "매일 가던 길 말고 한 번도 안 가 본 길로 집에 가 보세요. 작은 모험도 모험이에요.",
+    drink: "탄산 가득 레몬 에이드", spot: "처음 가 보는 낯선 동네",
+  },
+  HE: {
+    v: "쾌락", ve: "Hedonism", dirs: ["E", "A"],
+    desc: "행복은 나중이 아니라 지금 여기에. 소금빵 띰구는 맛있는 것, 편안한 것, 기분 좋은 것을 아끼지 않고 챙겨요. 나를 즐겁게 하는 일이 사치가 아니라 살아가는 힘이라는 걸 잘 알아요.",
+    moves: ["오래 기다린 맛집 메뉴가 딱 나왔을 때", "아무 계획 없는 느긋한 주말", "고생한 나에게 작은 선물을 줄 때"],
+    power: "즐거움을 알아보는 감각이 뛰어나요. 지친 사람 옆에서 “일단 맛있는 거 먹자”고 말해 주는 회복 담당이에요.",
+    shadow: "지금의 즐거움이 앞서다 보면 귀찮은 일이 자꾸 뒤로 밀리기도 해요. 즐거움을 줄이자는 게 아니라, 내일의 나도 즐겁게 해 주자는 거예요.",
+    tip: "이번 주에 ‘나를 위한 한 입’을 미리 달력에 적어 두세요. 기다리는 즐거움까지 두 배로 챙길 수 있어요.",
+    drink: "크림 듬뿍 아인슈페너", spot: "햇살 드는 카페 창가 자리",
+  },
+  AC: {
+    v: "성취", ve: "Achievement", dirs: ["A"],
+    desc: "겹겹이 쌓은 결이 크루아상의 자랑이듯, 끝판왕 크루아상 띰구는 노력해서 쌓은 실력으로 인정받는 순간이 제일 짜릿해요. 할 거면 제대로, 기왕이면 잘하고 싶어요.",
+    moves: ["목표한 숫자를 달성했을 때", "“역시 잘한다”는 말을 들을 때", "어제보다 나아진 내 기록을 볼 때"],
+    power: "목표를 잡으면 계획을 세우고 끝까지 밀어붙여요. 팀에서 ‘이 사람한테 맡기면 된다’는 믿음을 주는 사람이에요.",
+    shadow: "결과로만 나를 평가하면 쉬어도 쉬는 것 같지 않아요. 잘한 날만큼 애쓴 날도 쳐 주세요.",
+    tip: "이번 주에 ‘이룬 것’ 말고 ‘해 낸 노력’ 세 가지를 적어 보세요. 결과보다 결이 먼저예요.",
+    drink: "샷 추가 아이스 아메리카노", spot: "새벽 공기 맑은 독서실",
+  },
+  PO: {
+    v: "권력", ve: "Power", dirs: ["A"],
+    desc: "파티 한가운데 놓이는 홀케이크처럼, 이 띰구는 판을 읽고 이끄는 자리에서 힘이 나요. 여기서 ‘권력’은 남을 누르는 힘이 아니라, 사람과 상황을 움직여 일이 되게 만드는 영향력이에요.",
+    moves: ["어수선한 상황을 내가 깔끔하게 정리했을 때", "내 말 한마디에 사람들이 움직일 때", "더 큰 역할과 책임을 맡았을 때"],
+    power: "결정이 필요한 순간에 피하지 않아요. 우왕좌왕하는 판에 방향을 잡아 주고, 사람과 자원을 알맞게 배치해요.",
+    shadow: "내 손을 벗어난 상황에서 유난히 불안해지거나, 내 방식이 정답처럼 느껴질 때가 있어요. 믿고 맡기는 것도 보스의 기술이에요.",
+    tip: "이번 주에 한 가지 일은 다른 사람에게 통째로 맡기고 결과를 기다려 보세요.",
+    drink: "진한 더블 에스프레소", spot: "모두가 한눈에 보이는 무대 위",
+  },
+  SE: {
+    v: "안전", ve: "Security", dirs: ["S"],
+    desc: "언제 꺼내 먹어도 든든한 식빵처럼, 이 띰구는 나와 내 사람들이 안전하고 안정된 게 제일 중요해요. 미리 준비해 두면 마음이 놓이고, 그 여유로 다른 사람까지 챙겨요.",
+    moves: ["비상금 통장이 차곡차곡 쌓일 때", "계획대로 일이 착착 흘러갈 때", "소중한 사람이 무사히 도착했다는 연락을 받을 때"],
+    power: "위험을 먼저 알아채고 대비해요. 다들 들떠 있을 때 ‘혹시 모르니까’를 챙기는 덕분에 모두가 덜 다쳐요.",
+    shadow: "걱정이 대비를 넘어 나를 붙잡을 때가 있어요. 이미 충분히 준비했다면, 그다음은 나를 믿어 줘도 괜찮아요.",
+    tip: "걱정 목록 옆에 ‘이미 준비해 둔 것’ 목록을 같이 적어 보세요. 생각보다 길어서 놀랄 거예요.",
+    drink: "따끈한 보리차", spot: "깔끔하게 정리된 내 방",
+  },
+  CO: {
+    v: "순응", ve: "Conformity", dirs: ["S"],
+    desc: "틀에 맞춰 반듯하게 구워지는 마들렌처럼, 이 띰구는 약속과 예의, 함께 지키는 선을 소중히 여겨요. 남에게 불편을 주지 않으려는 마음이 몸에 배어 있어요.",
+    moves: ["약속 시간을 딱 맞췄을 때", "자리에 꼭 맞는 말과 옷차림을 골랐을 때", "모두가 편안하게 어울리는 분위기일 때"],
+    power: "함께 지내는 데 필요한 배려를 누구보다 잘 알아요. 이 띰구가 있는 모임은 이상하게 덜 삐걱거려요.",
+    shadow: "남의 눈치를 보느라 내 마음을 뒤로 미루기 쉬워요. ‘아까 그 말 실례였나’ 곱씹는 밤이 길어진다면, 나한테도 그 예의를 지켜 주세요.",
+    tip: "이번 주에 한 번은 “저는 이게 좋아요”라고 내 취향을 먼저 말해 보세요.",
+    drink: "향긋한 얼그레이 홍차", spot: "늘 같은 자리를 내주는 단골 카페",
+  },
+  TR: {
+    v: "전통", ve: "Tradition", dirs: ["S"],
+    desc: "오래도록 사랑받아 온 약과처럼, 이 띰구는 시간이 지켜 온 것들의 가치를 알아요. 집안의 방식, 오래된 의식, 믿음이 주는 뿌리를 소중히 여겨요.",
+    moves: ["할머니 레시피를 그대로 살려 냈을 때", "명절이나 기념일을 정성껏 챙길 때", "오래 다닌 곳, 오래 지켜 온 습관 속에 있을 때"],
+    power: "흔들릴 때 돌아갈 뿌리가 있어요. 세대와 세대를 잇고, 잊히기 쉬운 것을 기억해 주는 사람이에요.",
+    shadow: "새로운 방식이 낯설고 불편하게 느껴질 때가 있어요. 전통도 처음엔 누군가의 새로운 시도였다는 걸 떠올려 보세요.",
+    tip: "부모님이나 어른께 “이건 왜 이렇게 해요?” 하나를 여쭤보세요. 그 이야기가 곧 집안의 레시피예요.",
+    drink: "살얼음 동동 식혜", spot: "할머니 댁 시원한 마루",
+  },
+  BE: {
+    v: "박애", ve: "Benevolence", dirs: ["B"],
+    desc: "속에 꿀을 꽉 채운 호떡처럼, 이 띰구는 가까운 사람에게 아낌없이 따뜻해요. 가족, 친구, 동료처럼 매일 얼굴 보는 사람들이 잘 지내는 게 제일 큰 행복이에요.",
+    moves: ["친구가 내 반찬을 맛있게 먹었다고 연락할 때", "전화 너머 부모님 목소리가 밝을 때", "힘든 사람 곁에 있어 줄 수 있을 때"],
+    power: "믿을 수 있는 사람이에요. 말보다 행동으로 챙기고, 한번 맺은 관계를 오래오래 지켜요.",
+    shadow: "내 사람을 챙기느라 정작 나는 비어 갈 때가 있어요. 꿀호떡도 속이 차 있어야 나눌 수 있어요.",
+    tip: "이번 주엔 ‘내 사람’ 목록에 나 자신도 넣어서 한 번 챙겨 주세요.",
+    drink: "꿀 듬뿍 유자차", spot: "친구네 집 거실 소파",
+  },
+  UN: {
+    v: "보편주의", ve: "Universalism", dirs: ["B"],
+    desc: "누구나 먹을 수 있게 구운 비건 쿠키처럼, 이 띰구는 모르는 사람, 동물, 자연까지 모두가 괜찮은 세상을 바라요. 공평함과 이해, 너그러움이 이 띰구의 기본 재료예요.",
+    moves: ["불공평한 일을 보면 마음이 쓰일 때", "작은 실천이 누군가에게 닿았다는 걸 알 때", "나와 다른 생각을 듣고 ‘그럴 수 있겠다’ 싶을 때"],
+    power: "시야가 넓어요. 눈에 보이지 않는 사람의 자리까지 생각하고, 다름을 품을 줄 알아요.",
+    shadow: "세상의 큰 문제 앞에서 무력감이 들 때가 있어요. 모든 걸 바꾸지 않아도 괜찮아요. 쿠키 한 조각만큼의 변화도 변화예요.",
+    tip: "이번 달에 꾸준히 할 수 있는 작은 실천 하나만 골라 보세요. 텀블러 하나로도 충분해요.",
+    drink: "고소한 오트 라테", spot: "나무 많은 동네 공원 산책길",
+  },
+};
+
+const DIR_NAME = { E: "🧭 새로움과 자유 쪽", A: "🏆 나를 키우는 쪽", S: "🛡 지키고 이어 가는 쪽", B: "🤝 함께 잘 사는 쪽" };
+
+// 원 위 바로 옆자리 짝: 왜 닮았는지, 어디가 다른지
+const NEAR = {
+  "SD-ST": "둘 다 정해진 틀보다 ‘내가 고른 새로움’에 끌려요. 베이글은 내 방식대로 만들어 가는 데서, 팝핑캔디는 처음 겪는 짜릿함에서 힘을 얻어요.",
+  "HE-ST": "둘 다 ‘기분 좋은 자극’을 아는 띰구예요. 팝핑캔디는 심장이 뛰는 짜릿함 쪽, 소금빵은 마음이 풀리는 편안한 즐거움 쪽이에요.",
+  "AC-HE": "둘 다 ‘나’를 잘 챙기는 띰구예요. 소금빵은 지금 누리는 즐거움으로, 크루아상은 해 낸 성취로 나를 채워요.",
+  "AC-PO": "둘 다 인정받고 올라서는 순간에 힘이 나요. 크루아상은 실력으로 증명하고, 홀케이크는 영향력으로 판을 움직여요.",
+  "PO-SE": "둘 다 ‘판이 흔들리지 않게’ 하고 싶어요. 홀케이크는 앞에서 이끌어서, 식빵은 뒤에서 미리 대비해서 지켜요.",
+  "CO-SE": "둘 다 안정과 질서 속에서 마음이 놓여요. 식빵은 생길지 모를 위험을 대비하고, 마들렌은 사람 사이의 선을 지켜요.",
+  "CO-TR": "둘 다 ‘나보다 큰 약속’을 소중히 여겨요. 마들렌은 지금 함께하는 사람들과의 규칙을, 약과는 오래 이어 온 전통을 지켜요.",
+  "BE-TR": "둘 다 ‘내가 속한 곳’을 아껴요. 약과는 뿌리와 전통을 이어 가고, 꿀호떡은 지금 곁에 있는 사람을 챙겨요.",
+  "BE-UN": "둘 다 ‘남이 잘되길’ 바라는 따뜻한 띰구예요. 꿀호떡은 가까운 내 사람에게, 쿠키는 모르는 사람과 자연에까지 마음을 넓혀요.",
+  "SD-UN": "둘 다 스스로 생각하고 넓게 보는 띰구예요. 베이글은 내 생각을 지키는 데서, 쿠키는 나와 다른 생각을 이해하는 데서 출발해요.",
+};
+
+// 원 위 맞은편 짝: 왜 반대인지, 서로 배울 점
+const FAR = {
+  "CO-SD": { why: "베이글은 “내 방식대로”가, 마들렌은 “함께 정한 선”이 먼저예요. 한쪽이 자유를 원할 때 다른 쪽은 질서를 원해요.", learn: "베이글은 마들렌에게서 함께 사는 배려를, 마들렌은 베이글에게서 내 목소리를 내는 용기를 배울 수 있어요." },
+  "SE-ST": { why: "팝핑캔디는 짜릿한 변화를, 식빵은 든든한 안정을 찾아요. 한쪽이 “일단 가 보자!” 할 때 다른 쪽은 “혹시 모르니까”를 챙겨요.", learn: "둘이 함께면 모험은 더 안전해지고, 안정은 덜 지루해져요." },
+  "HE-TR": { why: "소금빵은 ‘지금 나의 즐거움’을, 약과는 ‘오래 지켜 온 방식과 절제’를 소중히 여겨요.", learn: "소금빵은 약과에게서 오래가는 것의 깊은 맛을, 약과는 소금빵에게서 오늘을 누리는 가벼움을 배울 수 있어요." },
+  "AC-BE": { why: "크루아상은 ‘내가 해 낸 것’에서, 꿀호떡은 ‘내 사람을 챙기는 것’에서 보람을 느껴요.", learn: "크루아상은 꿀호떡에게서 곁을 돌아보는 여유를, 꿀호떡은 크루아상에게서 나를 위해 달리는 법을 배울 수 있어요." },
+  "PO-UN": { why: "홀케이크는 판을 이끄는 힘을, 쿠키는 모두에게 공평한 세상을 바라요. 한쪽은 위에서 정리하고, 다른 쪽은 옆으로 나누려 해요.", learn: "홀케이크의 추진력과 쿠키의 공정함이 만나면, 모두가 따르고 싶은 리더가 돼요." },
+};
+
+function pairKey(a, b) { return [a, b].sort().join("-"); }
 
 // 네 방향: E=🧭, A=🏆, S=🛡, B=🤝
 const DIRS = ["E", "A", "S", "B"];
@@ -579,6 +726,71 @@ function snackLine(c) {
   return `<div class="rel"><span class="em">${s.e}</span><span><span class="nm">${esc(s.n)}</span></span></div>`;
 }
 
+function explainHTML(c) {
+  const s = SNACK[c], d = DETAIL[c];
+  return `
+    <article class="card">
+      <div class="card-top">
+        <div class="em">${s.e}</div>
+        <div class="nm">${esc(s.n)}</div>
+        <div class="ln">“${esc(s.l)}”</div>
+        <div class="tags"><span>${d.v} · ${d.ve}</span>${d.dirs.map(x => `<span>${DIR_NAME[x]}</span>`).join("")}</div>
+      </div>
+      <p>${esc(d.desc)}</p>
+      <h4>💓 이럴 때 마음이 움직여요</h4>
+      <ul>${d.moves.map(m => `<li>${esc(m)}</li>`).join("")}</ul>
+      <h4>💪 이 띰구의 힘</h4>
+      <p>${esc(d.power)}</p>
+      <h4>🌶 가끔은 이런 맛도</h4>
+      <p>${esc(d.shadow)}</p>
+      <h4>🥄 오늘의 한 입 팁</h4>
+      <p>${esc(d.tip)}</p>
+      <div class="pair2">
+        <div><b>찰떡 음료</b><span>${esc(d.drink)}</span></div>
+        <div><b>마음 충전소</b><span>${esc(d.spot)}</span></div>
+      </div>
+    </article>`;
+}
+
+function relCard(code, body) {
+  const s = SNACK[code];
+  return `
+    <div class="rel-card">
+      <div class="rel-h"><span class="em">${s.e}</span><div><div class="nm">${esc(s.n)}</div><div class="ln">${esc(s.l)}</div></div></div>
+      ${body}
+    </div>`;
+}
+
+function detailsHTML(r) {
+  const many = r.tops.length > 1;
+  const head = c => (many ? `<div class="rel-for">${SNACK[c].e} ${esc(SNACK[c].n)}의 짝</div>` : "");
+  const near = r.tops.map(c => head(c) + neighbors(c).map(n => relCard(n, `<p>${esc(NEAR[pairKey(c, n)])}</p>`)).join("")).join("");
+  const far = r.tops.map(c => {
+    const f = opposite(c), t = FAR[pairKey(c, f)];
+    return head(c) + relCard(f, `<p>${esc(t.why)}</p><p class="learn"><b>🤝 서로 배울 점</b> ${esc(t.learn)}</p>`);
+  }).join("");
+  return `
+    <div class="section">
+      <h3>📖 내 간식 해설</h3>
+      ${r.tops.map(explainHTML).join("")}
+    </div>
+    <div class="section">
+      <h3>👯 닮은꼴 띰구</h3>
+      <p class="small">가치의 원에서 바로 옆자리예요. 마음이 움직이는 이유가 비슷해서 금방 통해요.</p>
+      ${near}
+    </div>
+    <div class="section">
+      <h3>⚡ 다른 맛 띰구</h3>
+      <p class="small">가치의 원 맞은편 자리예요. 마음이 움직이는 이유가 나랑 정반대라 부딪히기도 하지만, 서로의 빈 곳을 채워 주기도 해요.</p>
+      ${far}
+    </div>
+    <div class="section about">
+      <h3>🔎 가치의 원이 뭐예요?</h3>
+      <p>심리학자 Schwartz는 사람들이 중요하게 여기는 10가지 기본 가치가 원처럼 이어져 있다고 봤어요. 옆자리 가치는 함께 추구하기 쉽고, 맞은편 가치는 서로 반대쪽으로 당겨요.</p>
+      <p>누구나 10가지를 다 갖고 있어요. 이 결과는 좋고 나쁨이 아니라 ‘요즘 내 마음이 어느 쪽으로 더 기우는지’를 보여 줘요.</p>
+    </div>`;
+}
+
 function renderResult() {
   const r = S.result;
   const many = r.tops.length > 1;
@@ -610,6 +822,7 @@ function renderResult() {
       <div class="rc-cut"></div>
       <div class="rc-total"><span>합계</span><span>마음 한 쟁반</span></div>
     </div>
+    ${detailsHTML(r)}
     <p class="tiny">이 테스트는 심리학 교육자 ＠mind__builder가 Schwartz 가치 이론으로 만들었어요. (시험판)</p>
 
     <div class="section">
