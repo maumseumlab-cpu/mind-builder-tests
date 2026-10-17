@@ -7,7 +7,7 @@ const assert = require("assert");
 
 const html = fs.readFileSync(path.join(__dirname, "index.html"), "utf8");
 const script = html.match(/<script>([\s\S]*)<\/script>/)[1]
-  + "\n;({ countDirs, chooseSet, buildStage2, snackResult, neighbors, opposite, SETS, STAGE1 })";
+  + "\n;({ countDirs, chooseSet, buildStage2, snackResult, neighbors, opposite, SETS, STAGE1, CIRCLE, DETAIL, NEAR, FAR, pairKey })";
 const T = vm.runInNewContext(script, {});
 
 let passed = 0;
@@ -82,6 +82,16 @@ test("겉 SD → 닮은꼴 UN·ST, 다른 맛 CO", () => {
 
 test("1단계 보기는 문항마다 네 방향이 하나씩", () => {
   T.STAGE1.forEach(q => same(q.o.map(x => x.d), ["E", "A", "S", "B"]));
+});
+
+test("간식 10개 모두 해설, 닮은꼴·다른 맛 짝 설명이 있음", () => {
+  T.CIRCLE.forEach(c => {
+    const d = T.DETAIL[c];
+    assert.ok(d && d.desc && d.moves.length === 3 && d.power && d.shadow && d.tip && d.drink && d.spot, c + " 해설");
+    T.neighbors(c).forEach(n => assert.ok(T.NEAR[T.pairKey(c, n)], c + "-" + n + " 닮은꼴 설명"));
+    const f = T.FAR[T.pairKey(c, T.opposite(c))];
+    assert.ok(f && f.why && f.learn, c + " 다른 맛 설명");
+  });
 });
 
 console.log(`\n${passed}개 모두 통과`);
